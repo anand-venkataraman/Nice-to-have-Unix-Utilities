@@ -1,0 +1,64 @@
+stats.pl and histo.pl are little perl programs that print basic stats on input numbers.
+Histo prints a nice hisogram.
+
+$ stats.pl -h
+ Usage: cat numbers.txt | stats.pl
+ stats.pl prints basic statistics over input numbers.
+ Input should be a series of numbers, ideally one per line.
+
+
+$ histo.pl -h
+ Usage: ./histo.pl -min MIN -max MAX -int INTERVAL [-stars] [-scale] [-quiet]
+
+ Strictly a filter, this histograms incoming numerical data points into
+ requested bin sizes.
+
+ The program will print a same-line progress message as the input is
+ being read in, with out-of-range (< min or > max) values reported to
+ the left, between and the right of ] and [ resp. To suppress this,
+ use the -q option
+
+ Note that -min and -max clip the histogram, but don't affect the basic
+ statistcs - e.g. mean and variance
+
+ Use -stars to print a horizontal bar of stars for each bin
+ Use -scale to increase the weight of each star, if -stars is used
+
+
+$ seq 1000000 | gawk '{print rand()+rand()+rand()}' | ./stats.pl
+ N = 1000000
+ Sum = 1499461.61447058
+ SumSq = 2498699.98840828
+ Mean = 1.49946161447058
+ Min = 0.0151518
+ Max = 2.97458
+ Var = 0.250314855137559
+ SD = 0.500314756066178
+
+# In the example invocation below we demonstrate clipping for the histogram using the min and max
+# values histo.pl will print a progress message that shows how many values fall below min (to the
+# left of the closing square bracket, over max (the right of the opening square bracket, and
+# between min and max (between ] and [). Stats calculation still considers all values even though
+# the histogramming doesn't.
+#
+
+$ seq 1000000 | gawk '{print rand()+rand()+rand()}' | ./histo.pl -min 0 -max 2.5 -int 0.2 -stars -scale 10000
+ 0 ] 1000000 [ 21135
+ # NumSamples = 1000000; Max = 2.97458; Min = 0.0151518
+ # Mean = 1.49946161447058; Variance = 0.250314855137559; SD = 0.500314756066178
+ # Each * represents a count of 10000
+     0.0000 - 0.2000 [  1359]: *
+     0.2000 - 0.4000 [  9350]: *
+     0.4000 - 0.6000 [ 25361]: ***
+     0.6000 - 0.8000 [ 49932]: *****
+     0.8000 - 1.0000 [ 81347]: *********
+     1.0000 - 1.2000 [117392]: ************
+     1.2000 - 1.4000 [140804]: ***************
+     1.4000 - 1.6000 [149454]: ***************
+     1.6000 - 1.8000 [141271]: ***************
+     1.8000 - 2.0000 [117107]: ************
+     2.0000 - 2.2000 [ 81455]: *********
+     2.2000 - 2.4000 [ 49025]: *****
+     2.4000 - 2.6000 [ 15008]: **
+
+
